@@ -1,0 +1,21 @@
+body {
+    background: #9502CE;
+    background: -webkit-linear-gradient(top left, #9502CE, #F9C2E4);
+    background: -moz-linear-gradient(top left, #9502CE, #F9C2E4);
+    background: linear-gradient(to bottom right, #9502CE, #F9C2E4);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin:0;
+    height:100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Karla',sans-serif;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+
+body > h1 {
+    margin-bottom: 5vh;
+}
