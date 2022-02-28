@@ -68,9 +68,6 @@ const drawGs = () =>{
 
 }
 
-
-
-
 const drawCat = (x,y) => {
     let cat = new Image();
     cat.src = catSRC;
@@ -95,13 +92,15 @@ let animIdx = 0;
 const catAnimation = () =>{
     switch (animIdx){
         case 0:
-            var meow = new Audio('./assets/miaou.mp3')
-            catSRC = './assets/chatmarche.png'
-            meow.play();
+            var meow = new Audio('./assets/miaou.mp3');
+            catSRC = './assets/chatmarche.png';
+            meow.addEventListener('canplaythrough', function() { 
+                meow.play();
+             }, false);
             break;
 
         case pts.length-1:
-            catSRC = './assets/chatdort.png'
+            catSRC = './assets/chatdort.png';
             break;
             
     }
