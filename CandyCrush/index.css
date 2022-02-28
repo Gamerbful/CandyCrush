@@ -1,8 +1,8 @@
 body {
     background:url("./assets/background.jpg") no-repeat center center fixed;
     height: 100vh;
-    width:100vw;
-    backdrop-filter: blur(4px);
+    width: 100vw;
+    backdrop-filter: blur(1vh);
     background-size: 100% 100%;
     display:flex;
     flex-direction: column;
@@ -26,7 +26,10 @@ body {
 
 
   .logo--animated {
-
-      width:200px;
-      margin-bottom: 20px;
+    display: block;
+    width: auto;
+    max-height:15vh;
+    min-height: 15vh;
+    height: auto;
+    margin-bottom: 2%;
   }
