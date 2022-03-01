@@ -9,12 +9,14 @@ export default class Controller {
         this.model = new Model();
         this.view = new View(id, width, height);
 
-        this.view.readyEvent.addListener ( () => { this.model.initGrid(8,8) } );
+        this.view.readyEvent.addListener ( () => { this.model.initGrid(8,8) } ); 
         this.model.drawEvent.addListener( (grid) => { this.view.drawGameScreen(grid) });
 
         this.view.init();
         
     }
+
+    
 
 
 

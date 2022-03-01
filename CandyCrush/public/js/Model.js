@@ -1,3 +1,7 @@
+// TODO:
+    // combo function
+    // score compute
+
 
 import Event from './Event.js';
 
@@ -27,6 +31,13 @@ export default class Model {
         });
         this.drawEvent.trigger(this.grid);
         
+    }
+
+
+    explosion() {
+        // let toRemove = new    Array();
+        // for ( const sweet of this.grid ) {
+        // }
     }
 
 
