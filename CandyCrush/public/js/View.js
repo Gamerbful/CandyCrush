@@ -18,14 +18,15 @@ export default class View {
         ///     Events & States     ///
         this.start = true;
         this.readyEvent = new Event();
-        this.toAnimate = new Array();
+        this.animationEnded = new Event();
+        this.toAnimate = Array();
         this.currentGrid = null;
         this.state = "off"; // off : no animation / on : animation // resize : window resize
 
 
         ///     Sweets Sprites      ///
         this.spriteSheet = new Image;
-        this.animationFrameRate = 6;
+        this.animationFrameRate = 10;
         this.sprites = { // coordinates of sweets type in our spriteSheet
             0: [1625, 0],
             1: [1298, 170],
@@ -44,14 +45,11 @@ export default class View {
                 that.gs.width = Math.round(60 * window.innerWidth / 100);
                 that.gs.height = Math.round(70 * window.innerHeight / 100);
                 that.ctx = that.gs.getContext('2d');
-                that.ctx.width = that.gs.width * window.devicePixelRatio;
-                that.ctx.height = that.gs.height * window.devicePixelRatio;
+                that.ctx.width = that.gs.width;
+                that.ctx.height = that.gs.height;
                 let previousState = this.state;
                 that.state = "resize";
                 that.drawGameScreen(that.currentGrid);
-                for (const sweet of that.toAnimate) {
-                    that.ctx.drawImage(that.spriteSheet, sweet.coord[0], sweet.coord[1], 130, 150, sweet.from[0], sweet.to, that.ctx.width * 0.045, that.ctx.height * 0.1);
-                }
                 that.state = previousState;
             });
         }
@@ -63,11 +61,10 @@ export default class View {
         this.ctx.fillRect(0, 0, 1 / 3 * this.ctx.width, this.ctx.height);
         this.ctx.fillStyle = '#FFFFFF';
         let text = "Score :";
-        this.ctx.fillText(text,1 / 3 * this.ctx.width / 2 - this.ctx.measureText(text).width/2,Math.round(this.ctx.height * 0.2));
+        this.ctx.fillText(text, 1 / 3 * this.ctx.width / 2 - this.ctx.measureText(text).width / 2, Math.round(this.ctx.height * 0.2));
     }
 
     drawGameArea(grid) {
-        console.log(this.state);
         this.currentGrid = grid;
         let n = grid.length;
         let m = grid[0].length;
@@ -84,33 +81,67 @@ export default class View {
 
         switch (this.state) {
             case "off":
-                this.toAnimate = new Array();
 
-                for (let i = 0; i < n; i++) {
-                    for (let j = 0; j < m; j++) {
 
-                        let coord = this.sprites[grid[i][j].type];
-                        let coordX = Math.round((1 / 3 * this.ctx.width) + (i * stepWidth) + (stepWidth / 2) - ((this.ctx.width * 0.045) / 2));
-                        let coordY = Math.round((j * stepHeight) + (stepHeight / 2) - ((this.ctx.height * 0.1) / 2));
-                        let beginY = 0;
-                        let step = coordY / 70
-                        this.toAnimate.push({
-                            coord: [coord[0], coord[1]],
-                            from: [coordX, beginY],
-                            to: coordY,
-                            step: step
-                        });
+                if (this.start) {
+                    for (let i = 0; i < n; i++) {
+                        let column = new Array();
+                        for (let j = 0; j < m; j++) {
+                            if (grid[j][i] != null) {
+                                let coord = this.sprites[grid[j][i].type];
+                                let coordX = Math.round((1 / 3 * this.ctx.width) + (i * stepWidth) + (stepWidth / 2) - ((this.ctx.width * 0.045) / 2));
+                                let coordY = Math.round((j * stepHeight) + (stepHeight / 2) - ((this.ctx.height * 0.1) / 2));
+                                let beginY = 0;
+                                let step = coordY / 100
+                                column.push({
+                                    coord: [coord[0], coord[1]],
+                                    from: [coordX, beginY],
+                                    to: coordY,
+                                    step: step
+                                });
+
+                            } else {
+                                column.push(null);
+                            }
+                        }
+                        this.toAnimate.push(column);
 
                     }
-                    if (this.start) {
-                        this.start = false;
-                        this.state = "on";
-                        this.sweetAppear(grid);
-                    }
+                    this.start = false;
+                    this.state = "on";
+                    this.sweetAppear(grid);
+                } else {
+                    this.state = "on"
+                    // this.toAnimate = Array();
+                    // for (let i = 0; i < n; i++) {
+                    //     let column = new Array();
+                    //     for (let j = 0; j < m; j++) {
+                    //         if (grid[j][i] != null) {
+                    //             let coord = this.sprites[grid[j][i].type];
+                    //             let coordX = Math.round((1 / 3 * this.ctx.width) + (i * stepWidth) + (stepWidth / 2) - ((this.ctx.width * 0.045) / 2));
+                    //             let coordY = Math.round((j * stepHeight) + (stepHeight / 2) - ((this.ctx.height * 0.1) / 2));
+                    //             let beginY = 0;
+                    //             let step = coordY / 70
+                    //             column.push({
+                    //                 coord: [coord[0], coord[1]],
+                    //                 from: [coordX, beginY],
+                    //                 to: coordY,
+                    //                 step: step
+                    //             });
+
+                    //         } else {
+                    //             column.push(null);
+                    //         }
+                    //     }
+                    //     this.toAnimate.push(column);
+
+                    // }
+                    this.sweetAppear(grid);
                 }
                 break;
             case "resize":
                 this.resizeSweet(stepWidth, stepHeight, n, m);
+                this.sweetAppear(grid);
                 break;
 
         }
@@ -134,43 +165,63 @@ export default class View {
     }
 
     resizeSweet(stepWidth, stepHeight, n, m) {
-        let idx = 0;
         for (let i = 0; i < n; i++) {
             for (let j = 0; j < m; j++) {
+                if ( this.toAnimate[i][j] != null ){
                 let coordX = Math.round((1 / 3 * this.ctx.width) + (i * stepWidth) + (stepWidth / 2) - ((this.ctx.width * 0.045) / 2));
                 let coordY = Math.round((j * stepHeight) + (stepHeight / 2) - ((this.ctx.height * 0.1) / 2));
-                this.toAnimate[idx].from[0] = coordX;
-                this.toAnimate[idx].to = coordY;
-                idx++;
+                this.toAnimate[i][j].from[0] = coordX;
+                this.toAnimate[i][j].to = coordY;
             }
+        }
         }
     }
 
+    sweetExplosion( params ) {
+        for ( const coord of params[1] ){
+            this.toAnimate[coord[1]][coord[0]] = null;
+        }
+
+        setTimeout(
+            () =>{
+                this.drawGameScreen(params[2]);
+            },200
+        );
+        
+       
+    }
     sweetAppear(grid) {
-        console.log(this.state);
-        for (let i = this.toAnimate.length - 1; i >= 0; i--) {
-            let textX = this.toAnimate[i].coord[0];
-            let textY = this.toAnimate[i].coord[1];
-            let coordX = this.toAnimate[i].from[0];
-            let coordY = this.toAnimate[i].from[1];
-            let toY = this.toAnimate[i].to;
-            let step = this.toAnimate[i].step;
-            if (coordY < toY) {
-                this.toAnimate[i].from[1] = this.toAnimate[i].from[1] + step;
-            } else {
-                coordY = toY;
-                this.state = "off";
+        for (let i = 0; i < this.toAnimate.length; i++) {
+            for (let j = 0; j < this.toAnimate.length; j++) {
+                if (this.toAnimate[i][j] != null) {
+                    let textX = this.toAnimate[i][j].coord[0];
+                    let textY = this.toAnimate[i][j].coord[1];
+                    let coordX = this.toAnimate[i][j].from[0];
+                    let coordY = this.toAnimate[i][j].from[1];
+                    let toY = this.toAnimate[i][j].to;
+                    let step = this.toAnimate[i][j].step;
+                    if (coordY < toY) {
+                        this.toAnimate[i][j].from[1] = this.toAnimate[i][j].from[1] + step;
+                    } else {
+                        coordY = toY;
+                        this.state = "off";
+                        
+                    }
+                    this.ctx.drawImage(this.spriteSheet, textX, textY, 130, 150, coordX, coordY, this.ctx.width * 0.045, this.ctx.height * 0.1);
+
+
+                }
             }
-            this.ctx.drawImage(this.spriteSheet, textX, textY, 130, 150, coordX, coordY, this.ctx.width * 0.045, this.ctx.height * 0.1);
-
-
         }
         if (this.state == "on") {
-
+            
             setTimeout(() => {
                 this.drawGameScreen(grid);
                 this.sweetAppear(grid);
             }, this.animationFrameRate);
+        }
+        else {
+            this.animationEnded.trigger();
         }
 
 
