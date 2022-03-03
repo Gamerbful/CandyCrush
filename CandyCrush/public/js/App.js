@@ -6,7 +6,6 @@ const app = new Controller('gamescreen', 60, 70);
 
 
 
-
 var audio = new Audio('../assets/mainTheme.mp3');
 var audioOn = false;
 document.getElementById('son').onclick = () => {

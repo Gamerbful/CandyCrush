@@ -8,6 +8,7 @@ import Event from './Event.js';
 class Sweet {
     constructor() {
         this.type = Math.floor(Math.random() * 4);
+        this.state = "new";
     }
 }
 
@@ -39,11 +40,48 @@ export default class Model {
 
     checkExplosion() {
         let explosion = this.explosion();
+        this.grid = this.grid.map( (row) => {
+            return row.map( (sweet) => {
+                sweet.state = "old";
+                return sweet;
+            })
+
+        });
         explosion.forEach( (coord) => {
-            this.grid[coord[0]][coord[1]] = new Sweet();
+            this.grid[coord[0]][coord[1]] = null;
+        });
+
+        
+        for(let i = 0; i<this.grid.length; i++){
+            let hole = 0;
+            for(let j = this.grid[0].length-1; j>=0; j--){
+                if ( this.grid[j][i] == null ){
+                    hole++;
+                }
+                else if ( hole > 0 ){
+                    let temp = this.grid[j][i];
+                    this.grid[j][i] = null;
+                    this.grid[j+hole][i] = temp;
+                    hole--;
+                }
+            }
+        }
+
+        this.grid = this.grid.map( (row) => {
+            return row.map( (sweet) => {
+                if( sweet == null ) {
+                    let value = new Sweet();
+                    return value;
+                }
+                else{
+                return sweet;
+                }
+                
+            });
+            
         });
         if ( explosion.length > 0 ){
-        this.explodeEvent.trigger({1:explosion,2:this.grid});
+            this.explodeEvent.trigger({1:explosion,2:this.grid});
         }
     }
 
