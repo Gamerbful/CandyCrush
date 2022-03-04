@@ -62,7 +62,6 @@ export default class Model {
                     let temp = this.grid[j][i];
                     this.grid[j][i] = null;
                     this.grid[j+hole][i] = temp;
-                    hole--;
                 }
             }
         }
