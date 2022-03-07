@@ -24,6 +24,10 @@ export default class Model {
         this.m = 0;
     }
 
+    updateGrid( grid ){
+        this.grid = grid;
+    }
+
     initGrid(n, m) {
         this.n = n;
         this.m = m;

@@ -13,6 +13,7 @@ export default class Controller {
         this.view.animationEnded.addListener ( () => {this.model.checkExplosion()});
         this.model.drawEvent.addListener( (grid) => { this.view.drawGameScreen(grid) });
         this.model.explodeEvent.addListener ( (exploded,grid) => { this.view.sweetExplosion(exploded,grid)} );
+        this.view.updateGrid.addListener ( (grid) => { this.model.updateGrid(grid)});
 
         this.view.init();
         

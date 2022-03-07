@@ -14,13 +14,16 @@ export default class View {
         this.ctx.lineWidth = 4;
         this.stepWidth = null;
         this.stepHeight = null;
-        
+        this.grd = this.ctx.createLinearGradient(0, 0, 200, 0);
+        this.grd.addColorStop(0, "red");
+        this.grd.addColorStop(1, "white");
 
 
         ///     Events & States     ///
         this.start = true;
         this.readyEvent = new Event();
         this.animationEnded = new Event();
+        this.updateGrid = new Event();
         this.toAnimate = Array();
         this.currentGrid = null;
         this.state = "off"; // off : no animation / on : animation // resize : window resize
@@ -30,7 +33,7 @@ export default class View {
         ///     Sweets Sprites      ///
         this.spriteSheet = new Image;
         this.nbFrame = 60;
-        this.animationFrameRate = 1000/this.nbFrame;
+        this.animationFrameRate = 1000 / this.nbFrame;
         this.sprites = { // coordinates of sweets type in our spriteSheet
             0: [1625, 0],
             1: [1298, 170],
@@ -43,14 +46,26 @@ export default class View {
 
     init() {
         this.gs.addEventListener('mousedown', (e) => {
-            let {x,y} = this.getCursorPosition(this.gs,e);
-            let {xIdx,yIdx} = this.isOnSweet(x,y);
-            this.buffer = [xIdx,yIdx];
+            let {
+                x,
+                y
+            } = this.getCursorPosition(this.gs, e);
+            let {
+                xIdx,
+                yIdx
+            } = this.isOnSweet(x, y);
+            this.buffer = [xIdx, yIdx];
         })
         this.gs.addEventListener('mouseup', (e) => {
-            let {x,y} = this.getCursorPosition(this.gs,e);
-            let {xIdx,yIdx} = this.isOnSweet(x,y);
-            this.swapSweet(this.buffer[0],this.buffer[1],xIdx,yIdx);
+            let {
+                x,
+                y
+            } = this.getCursorPosition(this.gs, e);
+            let {
+                xIdx,
+                yIdx
+            } = this.isOnSweet(x, y);
+            this.swapSweet(this.buffer[0], this.buffer[1], xIdx, yIdx);
         })
         this.spriteSheet.onload = () => {
             this.readyEvent.trigger();
@@ -74,7 +89,7 @@ export default class View {
 
         this.ctx.fillRect(1 / 3 * this.ctx.width, 0, 2 / 3 * this.ctx.width, this.ctx.height);
 
-        
+
         let stepWidth = 2 / 3 * this.ctx.width / n;
         let stepHeight = this.ctx.height / m;
 
@@ -97,12 +112,13 @@ export default class View {
                                 let coordX = Math.round((1 / 3 * this.ctx.width) + (j * stepWidth) + (stepWidth / 2) - ((this.ctx.width * 0.045) / 2));
                                 let coordY = Math.round((i * stepHeight) + (stepHeight / 2) - ((this.ctx.height * 0.1) / 2));
                                 let beginY = -(stepHeight + (stepHeight / 2) - ((this.ctx.height * 0.1) / 2));
-                                let step = (coordY-beginY) / this.nbFrame;
+                                let step = (coordY - beginY) / this.nbFrame;
                                 column.push({
                                     coord: [coord[0], coord[1]],
                                     from: [coordX, beginY],
-                                    to: [coordX,coordY],
-                                    step: [0,step]
+                                    to: [coordX, coordY],
+                                    step: [0, step],
+                                    dir: 0
                                 });
 
                             } else {
@@ -124,15 +140,16 @@ export default class View {
                                 let coordX = Math.round((1 / 3 * this.ctx.width) + (j * stepWidth) + (stepWidth / 2) - ((this.ctx.width * 0.045) / 2));
                                 let coordY = Math.round(((i) * stepHeight) + (stepHeight / 2) - ((this.ctx.height * 0.1) / 2));
                                 let beginY = -(stepHeight + (stepHeight / 2) - ((this.ctx.height * 0.1) / 2));
-                                let step = (coordY-beginY) / this.nbFrame;
+                                let step = (coordY - beginY) / this.nbFrame;
                                 this.toAnimate[i][j] = {
                                     coord: [coord[0], coord[1]],
                                     from: [coordX, beginY],
-                                    to: [coordX,coordY],
-                                    step: [0,step]
+                                    to: [coordX, coordY],
+                                    step: [0, step],
+                                    dir: 0
                                 };
 
-                            } 
+                            }
                         }
 
                     }
@@ -166,45 +183,43 @@ export default class View {
 
 
 
-    sweetExplosion( params ) {
-        console.log(params[2]);
+    sweetExplosion(params) {
         let m = params[2].length;
         let n = params[2].length;
         let stepHeight = this.ctx.height / m;
-        for(let i = 0; i<params[2].length; i++){
+        for (let i = 0; i < params[2].length; i++) {
             let hole = 0;
-            for(let j = params[2].length -1; j>=0; j--){
-                if ( params[1].some( (r) => r[0] == j && r[1] == i) ){
+            for (let j = params[2].length - 1; j >= 0; j--) {
+                if (params[1].some((r) => r[0] == j && r[1] == i)) {
                     hole++;
-                }
-                else if ( hole > 0 ) {
+                } else if (hole > 0) {
                     let temp = this.toAnimate[j][i];
                     this.toAnimate[j][i] = null;
-                    this.toAnimate[j+hole][i] = temp;
+                    this.toAnimate[j + hole][i] = temp;
 
-                    this.toAnimate[j+hole][i].to = [this.toAnimate[j+hole][i].to[0],Math.round(( (j+hole) * stepHeight) + (stepHeight / 2) - ((this.ctx.height * 0.1) / 2))];
-                    this.toAnimate[j+hole][i].step[1] = (this.toAnimate[j+hole][i].to[1] - this.toAnimate[j+hole][i].from[1]) / this.nbFrame;
-    
-                    
+                    this.toAnimate[j + hole][i].to = [this.toAnimate[j + hole][i].to[0], Math.round(((j + hole) * stepHeight) + (stepHeight / 2) - ((this.ctx.height * 0.1) / 2))];
+                    this.toAnimate[j + hole][i].step[1] = (this.toAnimate[j + hole][i].to[1] - this.toAnimate[j + hole][i].from[1]) / this.nbFrame;
+
+
                 }
             }
 
-        setTimeout(
-            () =>{
-                this.drawGameScreen(params[2]);
-            },200
-        );
-        
-       
+            setTimeout(
+                () => {
+                    this.drawGameScreen(params[2]);
+                }, 50
+            );
+
+
+        }
     }
-}
 
 
     sweetAppear(grid) {
         let offCount = 0;
-        this.toAnimate.forEach ( (arr) => {
-            arr.forEach( (sprite) => {
-                if ( sprite == null){
+        this.toAnimate.forEach((arr) => {
+            arr.forEach((sprite) => {
+                if (sprite == null) {
                     console
                     offCount++;
                 }
@@ -222,35 +237,57 @@ export default class View {
                     let toY = this.toAnimate[i][j].to[1];
                     let stepX = this.toAnimate[i][j].step[0];
                     let stepY = this.toAnimate[i][j].step[1];
-                    if (coordY < toY) {
-                        this.toAnimate[i][j].from[1] = this.toAnimate[i][j].from[1] + stepY;
+                    let dir = this.toAnimate[i][j].dir;
+
+                    switch (dir) {
+
+                        case 0:
+                            if (coordY < toY) {
+                                this.toAnimate[i][j].from[1] = this.toAnimate[i][j].from[1] + stepY;
+
+                            } else if (coordX < toX) {
+                                this.toAnimate[i][j].from[0] = this.toAnimate[i][j].from[0] + stepX;
+                            } else {
+                                this.toAnimate[i][j].from[0] = toX;
+                                this.toAnimate[i][j].from[1] = toY;
+                                offCount++;
+                            }
+                            break;
+
+                        case 1:
+                            if (coordY > toY) {
+                                this.toAnimate[i][j].from[1] = this.toAnimate[i][j].from[1] + stepY;
+
+                            } else if (coordX > toX) {
+                                this.toAnimate[i][j].from[0] = this.toAnimate[i][j].from[0] + stepX;
+                            } else {
+                                this.toAnimate[i][j].from[0] = toX;
+                                this.toAnimate[i][j].from[1] = toY;
+                                offCount++;
+                            }
+
 
                     }
-                    else if ( coordX < toX ) {
-                        this.toAnimate[i][j].from[0] = this.toAnimate[i][j].from[0] + stepX;
-                    } 
-                    else {
-                        coordY = toY;
-                        coordX = toX;
-                        offCount++;        
-                    }
-                    this.ctx.drawImage(this.spriteSheet, textX, textY, 130, 150, coordX, coordY, this.ctx.width * 0.045, this.ctx.height * 0.1);
+
+
+                    this.ctx.drawImage(this.spriteSheet, textX, textY, 130, 150, this.toAnimate[i][j].from[0], this.toAnimate[i][j].from[1], this.ctx.width * 0.045, this.ctx.height * 0.1);
 
 
                 }
             }
         }
-        if ( offCount > (this.toAnimate.length * this.toAnimate.length) -2){
+        if (offCount > (this.toAnimate.length * this.toAnimate.length) - 2) {
             this.state = "off";
+            console.log(this.toAnimate);
+            console.log("FINITO");
         }
         if (this.state == "appear") {
-            
+
             setTimeout(() => {
                 this.drawGameScreen(grid);
                 this.sweetAppear(grid);
             }, this.animationFrameRate);
-        }
-        else {
+        } else {
             this.animationEnded.trigger();
         }
 
@@ -272,46 +309,106 @@ export default class View {
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
         console.log("x: " + x + " y: " + y);
-        return {x,y};
+        return {
+            x,
+            y
+        };
     }
-    
 
-    
-    isOnSweet(x,y) {
+
+
+    isOnSweet(x, y) {
 
         let xIdx = null;
         let yIdx = null;
-        if ( x > (1 / 3 * this.ctx.width) ) {
-            xIdx = Math.floor( ( x - (1 / 3 * this.ctx.width)) / this.stepWidth );
-            yIdx = Math.floor ( y / this.stepHeight );
-            return {xIdx,yIdx};
-        }
-
-        else{
+        if (x > (1 / 3 * this.ctx.width)) {
+            yIdx = Math.floor((x - (1 / 3 * this.ctx.width)) / this.stepWidth);
+            xIdx = Math.floor(y / this.stepHeight);
+            return {
+                xIdx,
+                yIdx
+            };
+        } else {
             return null;
         }
-        
+
 
     }
 
-    swapSweet(x1,y1,x2,y2){
-        console.log(x1,y1);
-        let s1Coord = this.toAnimate[x1][y1].from;
-        let s2Coord = this.toAnimate[x2][y2].from;
+    swapSweet(x1, y1, x2, y2) {
 
-        if ( Math.pow(x1-x2,2) <= 1 ){
+        if ( this.state == "off" ){
+        let s1Coord = this.toAnimate[x1][y1].from.map((val) => val);
+        let s2Coord = this.toAnimate[x2][y2].from.map((val) => val);
+
+        console.log(s1Coord);
+
+        console.log(s2Coord);
+        let diffWidth = y1 - y2;
+        let diffHeight = x1 - x2;
+        let tempGrid = this.currentGrid[x1][y1];
+        let stepHeight = Math.sqrt(Math.pow(s2Coord[1] - s1Coord[1], 2)) / this.nbFrame;
+
+        let stepWidth = Math.sqrt(Math.pow(s2Coord[0] - s1Coord[0], 2)) / this.nbFrame;
+        if (diffWidth == -1) {
             this.toAnimate[x1][y1].to[0] = s2Coord[0];
             this.toAnimate[x2][y2].to[0] = s1Coord[0];
-            this.toAnimate[x1][y1].step[0] = 10;
-            this.toAnimate[x2][y2].step[0] = 10;
-            this.drawGameScreen(this.currentGrid);
-        }
-        else if ( Math.pow(y1-y2,2) <= 1){
+            this.toAnimate[x1][y1].step[0] = stepWidth;
+            this.toAnimate[x2][y2].step[0] = -stepWidth;
+            this.toAnimate[x1][y1].dir = 0;
+            this.toAnimate[x2][y2].dir = 1;
+
+            
+            this.currentGrid[x1][y1] =  this.currentGrid[x2][y2];
+            this.currentGrid[x2][y2] = tempGrid;
+            let temp = JSON.parse(JSON.stringify(this.toAnimate[x1][y1]));
+            this.toAnimate[x1][y1] = JSON.parse(JSON.stringify(this.toAnimate[x2][y2]));
+            this.toAnimate[x2][y2] = temp;
+            console.log(this.toAnimate[x1][y1], this.toAnimate[x2][y2]);
+
+        } else if (diffWidth == 1) {
+            this.toAnimate[x1][y1].to[0] = s2Coord[0];
+            this.toAnimate[x2][y2].to[0] = s1Coord[0];
+            this.toAnimate[x1][y1].step[0] = -stepWidth;
+            this.toAnimate[x2][y2].step[0] = stepWidth;
+            this.toAnimate[x1][y1].dir = 1;
+            this.toAnimate[x2][y2].dir = 0;
+            this.currentGrid[x1][y1] =  this.currentGrid[x2][y2];
+            this.currentGrid[x2][y2] = tempGrid;
+            let temp = JSON.parse(JSON.stringify(this.toAnimate[x1][y1]));
+            this.toAnimate[x1][y1] = JSON.parse(JSON.stringify(this.toAnimate[x2][y2]));
+            this.toAnimate[x2][y2] = temp;
+            console.log(this.toAnimate[x1][y1], this.toAnimate[x2][y2]);
+        } else if (diffHeight == 1) {
             this.toAnimate[x1][y1].to[1] = s2Coord[1];
             this.toAnimate[x2][y2].to[1] = s1Coord[1];
-            this.drawGameScreen(this.currentGrid);
-
+            this.toAnimate[x1][y1].step[1] = -stepHeight;
+            this.toAnimate[x2][y2].step[1] = stepHeight;
+            this.toAnimate[x1][y1].dir = 1;
+            this.toAnimate[x2][y2].dir = 0;
+            this.currentGrid[x1][y1] =  this.currentGrid[x2][y2];
+            this.currentGrid[x2][y2] = tempGrid;
+            let temp = JSON.parse(JSON.stringify(this.toAnimate[x1][y1]));
+            this.toAnimate[x1][y1] = JSON.parse(JSON.stringify(this.toAnimate[x2][y2]));
+            this.toAnimate[x2][y2] = temp;
+            console.log(this.toAnimate[x1][y1], this.toAnimate[x2][y2]);
+        } else if (diffHeight == -1) {
+            this.toAnimate[x1][y1].to[1] = s2Coord[1];
+            this.toAnimate[x2][y2].to[1] = s1Coord[1];
+            this.toAnimate[x1][y1].step[1] = stepHeight;
+            this.toAnimate[x2][y2].step[1] = -stepHeight;
+            this.toAnimate[x1][y1].dir = 0;
+            this.toAnimate[x2][y2].dir = 1;
+            this.currentGrid[x1][y1] =  this.currentGrid[x2][y2];
+            this.currentGrid[x2][y2] = tempGrid;
+            let temp = JSON.parse(JSON.stringify(this.toAnimate[x1][y1]));
+            this.toAnimate[x1][y1] = JSON.parse(JSON.stringify(this.toAnimate[x2][y2]));
+            this.toAnimate[x2][y2] = temp;
+            console.log(this.toAnimate[x1][y1], this.toAnimate[x2][y2]);
+            
         }
-
+        this.updateGrid.trigger(this.currentGrid);
+        this.drawGameScreen(this.currentGrid);
     }
+}
 }
