@@ -19,21 +19,24 @@ export default class Model {
     constructor() {
         this.drawEvent = new Event();
         this.explodeEvent = new Event();
+        this.stableEvent = new Event();
         this.grid = null;
         this.n = 0;
         this.m = 0;
+        this.score = 0;
+        this.nbCoups = 20;
     }
 
-    updateGrid( grid ){
+    updateGrid(grid) {
         this.grid = grid;
     }
 
-    initGrid(n, m) {
-        this.n = n;
-        this.m = m;
-        this.grid = Array(n).fill();
+    initGrid(size) {
+        this.n = size[1];
+        this.m = size[2];
+        this.grid = Array(this.n).fill();
         this.grid = this.grid.map((value, idx) => {
-            let rows = Array(m).fill();
+            let rows = Array(this.m).fill();
             rows = rows.map((value, idx) => {
                 return new Sweet();
             });
@@ -44,47 +47,52 @@ export default class Model {
 
     checkExplosion() {
         let explosion = this.explosion();
-        this.grid = this.grid.map( (row) => {
-            return row.map( (sweet) => {
+        this.grid = this.grid.map((row) => {
+            return row.map((sweet) => {
                 sweet.state = "old";
                 return sweet;
             })
 
         });
-        explosion.forEach( (coord) => {
+        explosion.forEach((coord) => {
             this.grid[coord[0]][coord[1]] = null;
+            this.score++;
         });
 
-        
-        for(let i = 0; i<this.grid.length; i++){
+
+        for (let i = 0; i < this.grid.length; i++) {
             let hole = 0;
-            for(let j = this.grid[0].length-1; j>=0; j--){
-                if ( this.grid[j][i] == null ){
+            for (let j = this.grid[0].length - 1; j >= 0; j--) {
+                if (this.grid[j][i] == null) {
                     hole++;
-                }
-                else if ( hole > 0 ){
+                } else if (hole > 0) {
                     let temp = this.grid[j][i];
                     this.grid[j][i] = null;
-                    this.grid[j+hole][i] = temp;
+                    this.grid[j + hole][i] = temp;
                 }
             }
         }
 
-        this.grid = this.grid.map( (row) => {
-            return row.map( (sweet) => {
-                if( sweet == null ) {
+        this.grid = this.grid.map((row) => {
+            return row.map((sweet) => {
+                if (sweet == null) {
                     let value = new Sweet();
                     return value;
+                } else {
+                    return sweet;
                 }
-                else{
-                return sweet;
-                }
-                
+
             });
-            
+
         });
-        if ( explosion.length > 0 ){
-            this.explodeEvent.trigger({1:explosion,2:this.grid});
+        if (explosion.length > 0) {
+            this.explodeEvent.trigger({
+                1: explosion,
+                2: this.grid,
+                3: this.score
+            });
+        } else {
+            this.stableEvent.trigger();
         }
     }
 

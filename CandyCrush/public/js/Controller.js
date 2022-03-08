@@ -7,13 +7,14 @@ import View from "./View.js";
 export default class Controller {
     constructor( id, width, height) {
         this.model = new Model();
-        this.view = new View(id, width, height);
+        this.view = new View(id, width, height,8,8);
 
-        this.view.readyEvent.addListener ( () => { this.model.initGrid(8,8) } ); 
+        this.view.readyEvent.addListener ( (size) => { this.model.initGrid(size) } ); 
         this.view.animationEnded.addListener ( () => {this.model.checkExplosion()});
         this.model.drawEvent.addListener( (grid) => { this.view.drawGameScreen(grid) });
         this.model.explodeEvent.addListener ( (exploded,grid) => { this.view.sweetExplosion(exploded,grid)} );
         this.view.updateGrid.addListener ( (grid) => { this.model.updateGrid(grid)});
+        this.model.stableEvent.addListener ( () => this.view.cancelMove() );
 
         this.view.init();
         
