@@ -34,7 +34,7 @@ export default class View {
         this.spriteSheet = new Image;
         this.candyMeow = new Image;
         this.nbFrame = 120;
-        this.animationFrameRate = 1000 / this.nbFrame;
+        this.animationFrameRate = 700 / this.nbFrame;
         this.sprites = { // coordinates of sweets type in our spriteSheet
             0: [1625, 0],
             1: [1298, 170],
@@ -160,7 +160,7 @@ export default class View {
 
         switch (this.state) {
             case "off":
-                this.state = "appear"
+                this.state = "appear";
                 for (let i = 0; i < n; i++) {
                     for (let j = 0; j < m; j++) {
                         if (grid[i][j].state == "new") {
@@ -309,9 +309,7 @@ export default class View {
                 }
             }
         }
-        if (offCount > (this.toAnimate.length * this.toAnimate.length) - 2) {
-            this.state = "off";
-        }
+        if (offCount > (this.toAnimate.length * this.toAnimate.length) - 2) this.state = "off";
         if (this.state == "appear") {
 
             setTimeout(() => {

@@ -29,7 +29,7 @@ body {
 
   .logo--animated {
     display: block;
-    width: auto;
+    width:auto;
     max-height:15vh;
     min-height: 15vh;
     height: auto;
