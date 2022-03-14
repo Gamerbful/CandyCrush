@@ -3,6 +3,7 @@
 ```
     npm start
 ```
+**Hosted on port 5000**
 
 ## What's the purpose of the app?
 
