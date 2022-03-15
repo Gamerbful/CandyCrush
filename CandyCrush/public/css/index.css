@@ -55,3 +55,18 @@ body {
     max-height : 80%;
     width:auto;
   }
+
+  .game--wrapper {
+    display:flex;
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .game--wrapper > input {
+    margin-left : 2vw;
+  }
+
+  .game--wrapper > p {
+    background-color : bisque;
+    border-radius: 7px;
+  }

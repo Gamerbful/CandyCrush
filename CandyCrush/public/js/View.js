@@ -1,5 +1,7 @@
 import Event from './Event.js';
 
+
+
 export default class View {
     constructor(id, width, height,n,m, font = "2em Karla") {
 
@@ -31,7 +33,10 @@ export default class View {
         this.nbCoups = 20;
 
         ///     Sweets Sprites      ///
+        this.skin = 0;
         this.spriteSheet = new Image;
+        this.spriteSheet2 = new Image;
+        this.spriteSheets = [this.spriteSheet, this.spriteSheet2];
         this.candyMeow = new Image;
         this.nbFrame = 120;
         this.animationFrameRate = 700 / this.nbFrame;
@@ -45,6 +50,10 @@ export default class View {
 
         ///     Handlings game      ////
         this.lastMove = null;
+        this.audios = {
+            0: [ new Audio("./assets/fall1.mp3"),new Audio("./assets/fall2.mp3"),new Audio("./assets/fall3.mp3"),new Audio("./assets/fall4.mp3")],
+            1: [ new Audio("./assets/melanchon.mp3"),new Audio("./assets/marine.mp3"),new Audio("./assets/zemmour.mp3"),new Audio("./assets/macron.mp3")]
+        }
 
     }
 
@@ -90,16 +99,20 @@ export default class View {
         let nbImageLoaded = 0;
         const ready = () => {
             nbImageLoaded ++;
-            if ( nbImageLoaded == 2 ){
+            if ( nbImageLoaded == 3 ){
                 this.readyEvent.trigger({1:this.n,2:this.m});
             }
         }
         this.spriteSheet.onload = () => {    
             ready();
         }
+        this.spriteSheet2.onload = () => {    
+            ready();
+        }
         this.candyMeow.onload = () => {
             ready();
         }
+        this.spriteSheet2.src = "./assets/spriteSheet2.png"
         this.spriteSheet.src = "./assets/spriteSheet.png";
         this.candyMeow.src = "./assets/scoreKawaii.png";
     }
@@ -235,6 +248,10 @@ export default class View {
                     this.nbCoups--;
                     this.lastMove = null;
                 }
+
+                params[4].forEach( (type) => {
+                    this.audios[this.skin][type].play();
+                })
             setTimeout(
                 () => {
                     this.drawGameScreen(params[2]);
@@ -303,7 +320,7 @@ export default class View {
                     }
 
 
-                    this.ctx.drawImage(this.spriteSheet, textX, textY, 130, 150, this.toAnimate[i][j].from[0], this.toAnimate[i][j].from[1], this.ctx.width * 0.045, this.ctx.height * 0.1);
+                    this.ctx.drawImage(this.spriteSheets[this.skin], textX, textY, 130, 150, this.toAnimate[i][j].from[0], this.toAnimate[i][j].from[1], this.ctx.width * 0.045, this.ctx.height * 0.1);
 
 
                 }

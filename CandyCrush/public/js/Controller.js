@@ -17,6 +17,16 @@ export default class Controller {
         this.model.stableEvent.addListener ( () => this.view.cancelMove() );
 
         this.view.init();
+        let checkBox = document.getElementById("skin")
+        checkBox.onclick = () => {
+            if ( checkBox.checked ){
+                this.view.skin = 1;
+            }
+            else {
+                this.view.skin = 0;
+            }
+
+        }
         
     }
 

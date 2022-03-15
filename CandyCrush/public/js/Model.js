@@ -54,6 +54,13 @@ export default class Model {
             })
 
         });
+        const t = new Set();
+        explosion.forEach((coord) => {
+            if (this.grid[coord[0]][coord[1]]!= null){
+                t.add(this.grid[coord[0]][coord[1]].type);
+            }
+        });
+
         explosion.forEach((coord) => {
             this.grid[coord[0]][coord[1]] = null;
             this.score++;
@@ -89,7 +96,8 @@ export default class Model {
             this.explodeEvent.trigger({
                 1: explosion,
                 2: this.grid,
-                3: this.score
+                3: this.score,
+                4: t
             });
         } else {
             this.stableEvent.trigger();
