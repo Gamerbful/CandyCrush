@@ -1,0 +1,72 @@
+body {
+    background:url("/assets/background.jpg") no-repeat center center fixed;
+    height: 100vh;
+    width: 100vw;
+    backdrop-filter: blur(1vh);
+    background-size: 100% 100%;
+    display:flex;
+    flex-direction: column;
+    margin:0;
+    padding: 0;
+    position:relative;
+    align-items: center;
+    justify-content: center;
+    
+
+}
+
+
+* {
+    box-sizing: border-box;
+    font-family: 'Karla';
+  }
+  
+
+  #gamescreen {
+      background-color: aliceblue;
+  }
+
+
+  .logo--animated {
+    display: block;
+    width:auto;
+    max-height:15vh;
+    min-height: 15vh;
+    height: auto;
+    margin-bottom: 2%;
+  }
+
+
+  #son {
+    display:flex;
+    margin-top: 1%;
+    border-radius: 7px;
+    border-style: none;
+    background-color:bisque;
+    width: 10%;
+    height : 5%;
+    outline: none;
+    align-items: center;
+    justify-content: center;
+    font-size:1.5vw;
+  }
+
+  #son > img {
+    max-height : 80%;
+    width:auto;
+  }
+
+  .game--wrapper {
+    display:flex;
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .game--wrapper > input {
+    margin-left : 2vw;
+  }
+
+  .game--wrapper > p {
+    background-color : bisque;
+    border-radius: 7px;
+  }
