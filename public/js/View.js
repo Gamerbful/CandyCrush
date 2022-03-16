@@ -30,6 +30,7 @@ export default class View {
         this.state = "off"; // off : no animation / on : animation // resize : window resize
         this.buffer = new Array();
         this.score = 0;
+        this.scoreOffset = 0;
         this.nbCoups = 20;
 
         ///     Sweets Sprites      ///
@@ -259,7 +260,10 @@ export default class View {
                 this.drawGameScreen(params[2]);
             }, 50
         );
-        if ( !this.start ) this.score = params[3];
+        if ( !this.start ) this.score = params[3] - this.scoreOffset;
+        else {
+            this.scoreOffset = params[3]
+        }
         params[4].forEach( (type) => {
             console.log()
             this.audios[this.skin][type].cloneNode().play();
